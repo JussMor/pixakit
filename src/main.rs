@@ -2,6 +2,8 @@ use dotenv::dotenv;
 use std::env;
 use std::fs;
 use std::path::PathBuf;
+use ntex::web::{self, types::{Json, Query}, App, HttpResponse, HttpServer};
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug)]
 enum Provider {
@@ -51,7 +53,55 @@ fn init_provider(storage: &Storage) {
     }
 }
 
-fn main() {
+
+// Define a struct to represent query parameters for "ondisk/subroute"
+// Define a struct to represent the query parameters for "ondisk/subroute"
+#[derive(Deserialize)]
+struct OnDiskQuery {
+    param: Option<String>,
+}
+
+// Define a struct to represent the query parameters for "googlecloud/subroute"
+#[derive(Deserialize)]
+struct GoogleCloudQuery {
+    param: Option<String>,
+}
+
+// Define a struct to represent the JSON payload for the POST request
+#[derive(Deserialize, Serialize)]
+struct OnDiskPayload {
+    key: String,
+    value: String,
+}
+
+// Handler for "ondisk/subroute" GET request
+async fn on_disk_subroute_get_handler(query: Query<OnDiskQuery>) -> HttpResponse {
+    if let Some(param) = query.param.clone() {
+        HttpResponse::Ok().body(format!("Hello, on disk subroute with param: {}", param))
+    } else {
+        HttpResponse::Ok().body("Hello, on disk subroute without param")
+    }
+}
+
+// Handler for "ondisk/subroute" POST request
+async fn on_disk_subroute_post_handler(payload: Json<OnDiskPayload>) -> HttpResponse {
+    //transofrm my pyaload in json format
+    let payloads = payload.into_inner();
+    HttpResponse::Ok().json(&payloads)
+}
+
+// Handler for "googlecloud/subroute" GET request
+async fn on_google_cloud_subroute_handler(query: Query<GoogleCloudQuery>) -> HttpResponse {
+    if let Some(param) = query.param.clone() {
+        HttpResponse::Ok().body(format!("Hello, Google Cloud subroute with param: {}", param))
+    } else {
+        HttpResponse::Ok().body("Hello, Google Cloud subroute without param")
+    }
+}
+
+
+#[ntex::main]
+async fn main() -> std::io::Result<()>  {
     dotenv().ok();
 
     let storage_provider = env::var("STORAGE_PROVIDER").unwrap_or_else(|_| "ONDISK".to_string());
@@ -85,5 +135,26 @@ fn main() {
         },
     };
 
-    init_provider(&provider)
+    init_provider(&provider);
+
+    HttpServer::new(|| {
+        App::new()
+            // Define "ondisk" routes
+            .service(
+                web::scope("/ondisk")
+                    .route("", web::get().to(|| async { HttpResponse::Ok().body("Hello, on disk!") }))
+                    .route("/subroute", web::get().to(on_disk_subroute_get_handler))
+                    .route("/subroute", web::post().to(on_disk_subroute_post_handler)),
+            )
+            // Define "googlecloud" routes
+            .service(
+                web::scope("/googlecloud")
+                    .route("", web::get().to(|| async { HttpResponse::Ok().body("Hello, Google Cloud!") }))
+                    .route("/subroute", web::get().to(on_google_cloud_subroute_handler)),
+            )
+    })
+    .bind("127.0.0.1:3030")?
+    .run()
+    .await
+
 }
