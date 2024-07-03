@@ -1,0 +1,8 @@
+[package]
+name = "pixakit"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+dotenv = "0.15.0"
+magick_rust = "1.0.0"
