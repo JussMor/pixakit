@@ -635,6 +635,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "49f1f14873335454500d59611f1cf4a4b0f786f9ac11f4312a78e4cf2566695b"
 
 [[package]]
+name = "language-tags"
+version = "0.3.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d4345964bb142484797b161f473a503a434de77149dd8c7427788c6e13379388"
+
+[[package]]
 name = "lazy_static"
 version = "1.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -859,6 +865,28 @@ dependencies = [
 ]
 
 [[package]]
+name = "ntex-files"
+version = "2.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c37d129e1b93c30c12fe7f7ce3e1770ce7a9d11c5a7dcf1264a8ade8e254db41"
+dependencies = [
+ "bitflags",
+ "derive_more",
+ "futures",
+ "http 1.1.0",
+ "httpdate",
+ "language-tags",
+ "log",
+ "mime",
+ "mime_guess",
+ "ntex",
+ "ntex-http",
+ "percent-encoding",
+ "unicase",
+ "v_htmlescape",
+]
+
+[[package]]
 name = "ntex-h2"
 version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -918,6 +946,21 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 1.0.109",
+]
+
+[[package]]
+name = "ntex-multipart"
+version = "2.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8dd0a3006402a1d1284ae45f489e4be6605d664cf2aeb1c187b1d3fe0b13fd94"
+dependencies = [
+ "derive_more",
+ "futures",
+ "httparse",
+ "log",
+ "mime",
+ "ntex",
+ "twoway",
 ]
 
 [[package]]
@@ -1141,9 +1184,14 @@ name = "pixakit"
 version = "0.1.0"
 dependencies = [
  "dotenv",
+ "futures-util",
  "magick_rust",
+ "mime",
  "ntex",
  "ntex-cors",
+ "ntex-files",
+ "ntex-multipart",
+ "ntex-util",
  "serde",
  "serde_json",
  "tokio",
@@ -1616,10 +1664,26 @@ dependencies = [
 ]
 
 [[package]]
+name = "twoway"
+version = "0.2.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c57ffb460d7c24cd6eda43694110189030a3d1dfe418416d9468fd1c1d290b47"
+dependencies = [
+ "memchr",
+ "unchecked-index",
+]
+
+[[package]]
 name = "typenum"
 version = "1.17.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "42ff0bf0c66b8238c6f3b578df37d0b7848e55df8577b3f74f92a69acceeb825"
+
+[[package]]
+name = "unchecked-index"
+version = "0.2.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "eeba86d422ce181a719445e51872fa30f1f7413b62becb52e95ec91aa262d85c"
 
 [[package]]
 name = "unicase"
@@ -1667,6 +1731,12 @@ name = "utf-8"
 version = "0.7.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "09cc8ee72d2a9becf2f2febe0205bbed8fc6615b7cb429ad062dc7b7ddd036a9"
+
+[[package]]
+name = "v_htmlescape"
+version = "0.15.8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4e8257fbc510f0a46eb602c10215901938b5c2a7d5e70fc11483b1d3c9b5b18c"
 
 [[package]]
 name = "version_check"
