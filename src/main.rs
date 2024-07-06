@@ -109,7 +109,7 @@ async fn main() -> std::io::Result<()>  {
     HttpServer::new(move || {
         App::new()
         .state(state.clone())
-        .wrap(Cors::new().finish())
+        .wrap(Cors::new().allowed_origin("*").finish())
             .configure(providers::ondisk::router::config)
             .configure(providers::googlecloud::router::config)
             .configure(providers::azure::router::config)
