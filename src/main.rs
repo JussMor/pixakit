@@ -3,8 +3,9 @@ use ntex_cors::Cors;
 use std::env;
 use std::fs;
 use std::path::PathBuf;
-use ntex::web::{self, types::{Json, Query}, App, HttpResponse, HttpServer};
-use serde::{Deserialize, Serialize};
+use ntex::web::{ App, HttpServer};
+use moka::future::Cache;
+use std::sync::Arc;
 
 mod providers;
 
@@ -18,7 +19,9 @@ enum Provider {
 #[derive(Debug)]
 struct Storage {
     provider: Provider,
+    #[allow(dead_code)]
     bucket: String,
+    #[allow(dead_code)]
     region: String,
     path: Option<PathBuf>,
 }
@@ -56,7 +59,10 @@ fn init_provider(storage: &Storage) {
     }
 }
 
-
+#[derive(Clone)]
+pub struct AppState {
+    cache: Arc<Cache<String, Vec<u8>>>,
+}
 
 #[ntex::main]
 async fn main() -> std::io::Result<()>  {
@@ -95,8 +101,14 @@ async fn main() -> std::io::Result<()>  {
 
     init_provider(&provider);
 
-    HttpServer::new(|| {
+    let cache = Arc::new(Cache::new(100));
+    let state = AppState {
+        cache,
+    };
+    // we can add  provider to our routes throught the state
+    HttpServer::new(move || {
         App::new()
+        .state(state.clone())
         .wrap(Cors::new().finish())
             .configure(providers::ondisk::router::config)
             .configure(providers::googlecloud::router::config)
