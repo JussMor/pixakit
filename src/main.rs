@@ -1,4 +1,7 @@
+use azure_storage::StorageCredentials;
+use azure_storage_blobs::prelude::ClientBuilder;
 use dotenv::dotenv;
+use futures_util::StreamExt;
 use ntex_cors::Cors;
 use std::env;
 use std::fs;
@@ -62,11 +65,29 @@ fn init_provider(storage: &Storage) {
 #[derive(Clone)]
 pub struct AppState {
     cache: Arc<Cache<String, Vec<u8>>>,
+    azure_client: Arc<ClientBuilder>,
 }
+
+impl AppState {
+    pub fn get_blob_client(&self, container: &str, blob_name: &str) -> azure_storage_blobs::prelude::BlobClient {
+        <ClientBuilder as Clone>::clone(&self.azure_client).blob_client(container, blob_name)
+    }
+}
+
 
 #[ntex::main]
 async fn main() -> std::io::Result<()>  {
     dotenv().ok();
+
+    let account = std::env::var("STORAGE_ACCOUNT").expect("missing STORAGE_ACCOUNT");
+    let access_key = std::env::var("STORAGE_ACCESS_KEY").expect("missing STORAGE_ACCOUNT_KEY");
+
+
+    let cache = Arc::new(Cache::new(100));
+    let storage_credentials = StorageCredentials::access_key(account.clone(), access_key);
+    let azure_client = Arc::new(ClientBuilder::new(account, storage_credentials));
+
+
 
     let storage_provider = env::var("STORAGE_PROVIDER").unwrap_or_else(|_| "ONDISK".to_string());
 
@@ -101,11 +122,13 @@ async fn main() -> std::io::Result<()>  {
 
     init_provider(&provider);
 
-    let cache = Arc::new(Cache::new(100));
+
+
     let state = AppState {
         cache,
+        azure_client
     };
-    // we can add  provider to our routes throught the state
+
     HttpServer::new(move || {
         App::new()
         .state(state.clone())
