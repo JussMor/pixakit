@@ -1,12 +1,6 @@
 
-use futures_util::{StreamExt, TryStreamExt};
-use ntex::web::{self, post, Error, HttpResponse, WebResponseError};
-use ntex::web::types::{Path, Query, State};
-use ntex_multipart::Multipart;
-use serde::Deserialize;
-use std::io::Write;
-use std::path::PathBuf;
-use mime;
+use ntex::web::{post, Error, HttpResponse};
+use ntex::web::types::State;
 
 use crate::providers::azure::AzureStorageError;
 use crate::AppState;

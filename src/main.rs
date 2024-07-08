@@ -1,7 +1,6 @@
 use azure_storage::StorageCredentials;
 use azure_storage_blobs::prelude::ClientBuilder;
 use dotenv::dotenv;
-use futures_util::StreamExt;
 use ntex_cors::Cors;
 use std::env;
 use std::fs;
