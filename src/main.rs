@@ -1,6 +1,8 @@
 use azure_storage::StorageCredentials;
 use azure_storage_blobs::prelude::ClientBuilder;
 use dotenv::dotenv;
+use google_cloud_storage::http::objects::download::Range;
+use google_cloud_storage::http::objects::get::GetObjectRequest;
 use ntex_cors::Cors;
 use std::env;
 use std::fs;
@@ -8,6 +10,11 @@ use std::path::PathBuf;
 use ntex::web::{ App, HttpServer};
 use moka::future::Cache;
 use std::sync::Arc;
+
+
+use google_cloud_storage::client::{ClientConfig, Client};
+use google_cloud_storage::client::google_cloud_auth::credentials::CredentialsFile;
+use google_cloud_storage::http::buckets::get::GetBucketRequest;
 
 mod providers;
 
@@ -39,9 +46,6 @@ fn init_ondisk(storage: &Storage) {
                 Err(e) => println!("Failed to create directory: {}", e),
             }
         } 
-        // else {
-        //     println!("Directory already exists: {}", path.display());
-        // }
     }
 }
 
@@ -65,6 +69,7 @@ fn init_provider(storage: &Storage) {
 pub struct AppState {
     cache: Arc<Cache<String, Vec<u8>>>,
     azure_client: Arc<ClientBuilder>,
+    g_storage: Arc<Client>
 }
 
 impl AppState {
@@ -78,17 +83,31 @@ impl AppState {
 async fn main() -> std::io::Result<()>  {
     dotenv().ok();
 
+    // OnDisk
+    
+    let storage_provider = env::var("STORAGE_PROVIDER").unwrap_or_else(|_| "ONDISK".to_string());
+    let cache = Arc::new(Cache::new(100));
+
+    // Azure
+
     let account = std::env::var("STORAGE_ACCOUNT").expect("missing STORAGE_ACCOUNT");
     let access_key = std::env::var("STORAGE_ACCESS_KEY").expect("missing STORAGE_ACCOUNT_KEY");
 
-
-    let cache = Arc::new(Cache::new(100));
     let storage_credentials = StorageCredentials::access_key(account.clone(), access_key);
     let azure_client = Arc::new(ClientBuilder::new(account, storage_credentials));
 
+    // Google Cloud
+
+    let key_file = std::fs::read_to_string("credentials/pixakit-key.json").expect("Failed to read key file");
+    let credentials = CredentialsFile::new_from_str(&key_file).await.unwrap();
+
+    let config = ClientConfig::default().with_credentials(credentials).await.unwrap();
+    let g_storage = Arc::new(Client::new(config));
 
 
-    let storage_provider = env::var("STORAGE_PROVIDER").unwrap_or_else(|_| "ONDISK".to_string());
+    // Amazon S3
+
+
 
     let current_dir = env::current_dir().expect("Failed to get current directory");
 
@@ -125,7 +144,8 @@ async fn main() -> std::io::Result<()>  {
 
     let state = AppState {
         cache,
-        azure_client
+        azure_client,
+        g_storage
     };
 
     HttpServer::new(move || {

@@ -1,12 +1,11 @@
 use ntex::web::{ServiceConfig, scope};
 
-use super::resize;
+use super::get_image;
 
 
 
 pub fn config(cfg: &mut ServiceConfig) {
     cfg.service(
         scope("/api/v1/googlecloud")
-                .service(resize::subroute)
-                .service(resize::sub));
+                .service(get_image::get_images));
 }
