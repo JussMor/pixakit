@@ -1,8 +1,8 @@
+use aws_sdk_s3::config;
+use aws_sdk_s3::config::Credentials;
 use azure_storage::StorageCredentials;
 use azure_storage_blobs::prelude::ClientBuilder;
 use dotenv::dotenv;
-use google_cloud_storage::http::objects::download::Range;
-use google_cloud_storage::http::objects::get::GetObjectRequest;
 use ntex_cors::Cors;
 use std::env;
 use std::fs;
@@ -10,11 +10,11 @@ use std::path::PathBuf;
 use ntex::web::{ App, HttpServer};
 use moka::future::Cache;
 use std::sync::Arc;
-
-
+use aws_sdk_s3::types::{BucketLocationConstraint, CreateBucketConfiguration};
+use aws_sdk_s3::{config::Region, Client as Aws};
 use google_cloud_storage::client::{ClientConfig, Client};
 use google_cloud_storage::client::google_cloud_auth::credentials::CredentialsFile;
-use google_cloud_storage::http::buckets::get::GetBucketRequest;
+
 
 mod providers;
 
@@ -69,7 +69,8 @@ fn init_provider(storage: &Storage) {
 pub struct AppState {
     cache: Arc<Cache<String, Vec<u8>>>,
     azure_client: Arc<ClientBuilder>,
-    g_storage: Arc<Client>
+    g_client: Arc<Client>,
+    aws_client: Arc<Aws>
 }
 
 impl AppState {
@@ -102,10 +103,22 @@ async fn main() -> std::io::Result<()>  {
     let credentials = CredentialsFile::new_from_str(&key_file).await.unwrap();
 
     let config = ClientConfig::default().with_credentials(credentials).await.unwrap();
-    let g_storage = Arc::new(Client::new(config));
-
+    let g_client = Arc::new(Client::new(config));
 
     // Amazon S3
+
+    let key_id = env::var("AWS_ACCESS_KEY").expect("Missing AWS_ACCESS_KEY");
+	let key_secret = env::var("AWS_SECRET_ACCESS_KEY").expect("Missing AWS_SECRET_ACCESS_KEY");
+
+    let sdk_config = aws_config::load_from_env().await;
+    let cred = Credentials::new(key_id, key_secret, None, None, "loaded-from-custom-env");
+	let region = Region::new("us-east-1".to_string());
+    let conf_builder = aws_sdk_s3::config::Builder::from(&sdk_config)
+        .region(region)
+        .credentials_provider(cred)
+        .build();
+
+	let aws_client = Arc::new(Aws::from_conf(conf_builder));
 
 
 
@@ -145,7 +158,8 @@ async fn main() -> std::io::Result<()>  {
     let state = AppState {
         cache,
         azure_client,
-        g_storage
+        g_client,
+        aws_client
     };
 
     HttpServer::new(move || {

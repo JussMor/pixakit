@@ -60,7 +60,7 @@ async fn get_images(state: State<AppState>, path: Path<PathParams>, params: Quer
     }
 
 
-    let result = state.g_storage.download_streamed_object(
+    let result = state.g_client.download_streamed_object(
         &GetObjectRequest {
             bucket: container.to_string(),
             object: name.to_string(),

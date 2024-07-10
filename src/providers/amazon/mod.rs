@@ -1,2 +1,2 @@
 pub mod router;
-pub mod resize;
+pub mod get_image;
