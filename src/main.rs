@@ -2,21 +2,36 @@ use aws_sdk_s3::config::Credentials;
 use azure_storage::StorageCredentials;
 use azure_storage_blobs::prelude::ClientBuilder;
 use dotenv::dotenv;
+use ntex::web::{ self, get, HttpResponse, HttpRequest, Error};
 use ntex_cors::Cors;
 use std::env;
+use std::path::PathBuf;
 use ntex::web::{ App, HttpServer};
 use moka::future::Cache;
 use std::sync::Arc;
 use aws_sdk_s3::{config::Region, Client as Aws};
 use google_cloud_storage::client::{ClientConfig, Client};
 use google_cloud_storage::client::google_cloud_auth::credentials::CredentialsFile;
+use ntex_files as files;
 
 
 mod providers;
 mod app_state;
 use app_state::AppState;
 
+async fn astro_files(req: HttpRequest) -> Result<HttpResponse, web::Error> {
+    let path: PathBuf = req.match_info().query("filename").parse().unwrap();
+    let file_path = format!("./apps/pixakit.ui/dist/_astro/{}", path.display());
 
+    if let Ok(contents) = std::fs::read(&file_path) {
+        let mime_type = mime_guess::from_path(&file_path).first_or_octet_stream();
+        Ok(HttpResponse::Ok()
+            .content_type(mime_type.as_ref())
+            .body(contents))
+    } else {
+        Ok(HttpResponse::NotFound().body("File not found"))
+    }
+}
 
 #[ntex::main]
 async fn main() -> std::io::Result<()>  {
@@ -73,6 +88,9 @@ async fn main() -> std::io::Result<()>  {
         App::new()
         .state(state.clone())
         .wrap(Cors::new().allowed_origin("*").finish())
+            .service(files::Files::new("/", "./apps/pixakit.ui/dist")
+                .index_file("index.html"))
+            .route("/_astro/{filename:.*}", web::get().to(astro_files))
             .configure(providers::ondisk::router::config)
             .configure(providers::googlecloud::router::config)
             .configure(providers::azure::router::config)
