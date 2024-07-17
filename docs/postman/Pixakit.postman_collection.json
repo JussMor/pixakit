@@ -1,0 +1,263 @@
+{
+	"info": {
+		"_postman_id": "8628a7ab-8b35-45a6-a56a-371dc78fb724",
+		"name": "Pixakit",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "9652431"
+	},
+	"item": [
+		{
+			"name": "OnDisk",
+			"item": [
+				{
+					"name": "GetAllFiles",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{$host}}/api/v1/ondisk/get-all-files",
+							"host": [
+								"{{$host}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"ondisk",
+								"get-all-files"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GetFilesAndFolders",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{$host}}/api/v1/ondisk/get-files-and-folders",
+							"host": [
+								"{{$host}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"ondisk",
+								"get-files-and-folders"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Upload",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "",
+								"value": "",
+								"type": "text",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": "/Users/jussmor/Downloads/turtle-png.png"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{$host}}/api/v1/ondisk/upload",
+							"host": [
+								"{{$host}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"ondisk",
+								"upload"
+							],
+							"query": [
+								{
+									"key": "path",
+									"value": "folder1/subfolder1",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "New Request",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{$host}}/api/v1/ondisk/images/folder1/subfolder1/sebasback.webp?width=300&height=500",
+							"host": [
+								"{{$host}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"ondisk",
+								"images",
+								"folder1",
+								"subfolder1",
+								"sebasback.webp"
+							],
+							"query": [
+								{
+									"key": "width",
+									"value": "300"
+								},
+								{
+									"key": "height",
+									"value": "500"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Azure",
+			"item": [
+				{
+					"name": "New Request",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{$host}}/api/v1/azure/upload",
+							"host": [
+								"{{$host}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"azure",
+								"upload"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "New Request",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{$host}}/api/v1/azure/images/pixakit/descentral.webp?width=500&height=300",
+							"host": [
+								"{{$host}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"azure",
+								"images",
+								"pixakit",
+								"descentral.webp"
+							],
+							"query": [
+								{
+									"key": "width",
+									"value": "500"
+								},
+								{
+									"key": "height",
+									"value": "300"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Google Cloud",
+			"item": [
+				{
+					"name": "New Request",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{$host}}/api/v1/googlecloud/images/pixakit/Payment-Model.webp?width=500&height=300",
+							"host": [
+								"{{$host}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"googlecloud",
+								"images",
+								"pixakit",
+								"Payment-Model.webp"
+							],
+							"query": [
+								{
+									"key": "width",
+									"value": "500"
+								},
+								{
+									"key": "height",
+									"value": "300"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Amazon",
+			"item": [
+				{
+					"name": "New Request",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{$host}}/api/v1/amazon/images/pixakit/permissionless.webp?width=200&height=100",
+							"host": [
+								"{{$host}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"amazon",
+								"images",
+								"pixakit",
+								"permissionless.webp"
+							],
+							"query": [
+								{
+									"key": "width",
+									"value": "200"
+								},
+								{
+									"key": "height",
+									"value": "100"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

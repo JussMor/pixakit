@@ -12,7 +12,7 @@ use std::sync::Arc;
 use aws_sdk_s3::{config::Region, Client as Aws};
 use google_cloud_storage::client::{ClientConfig, Client};
 use google_cloud_storage::client::google_cloud_auth::credentials::CredentialsFile;
-use ntex_files as files;
+// use ntex_files as files;
 
 
 mod providers;
@@ -88,9 +88,10 @@ async fn main() -> std::io::Result<()>  {
         App::new()
         .state(state.clone())
         .wrap(Cors::new().allowed_origin("*").finish())
-            .service(files::Files::new("/", "./apps/pixakit.ui/dist")
-                .index_file("index.html"))
-            .route("/_astro/{filename:.*}", web::get().to(astro_files))
+            // Wip: Serve static files 
+            // .service(files::Files::new("/", "./apps/pixakit.ui/dist")
+            //     .index_file("index.html"))
+            // .route("/_astro/{filename:.*}", web::get().to(astro_files))
             .configure(providers::ondisk::router::config)
             .configure(providers::googlecloud::router::config)
             .configure(providers::azure::router::config)
