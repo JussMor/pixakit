@@ -17,7 +17,7 @@
 KISS -> Keep Stupid Simple.
 
 Pixakit can be used with your current setup, just creating a wrapping function to transform your current provider url 
-to a  valid pixakit url. 
+to a  valid pixakit url. IMAGE MAGICK IS REQUIRED. [MAGICK RUST](https://github.com/nlfiedler/magick-rust)
 
 Example:
   https://company.com/Home_Illustration_a2ba90ea37/Home_Illustration_a2ba90ea37.webp
@@ -72,3 +72,4 @@ Rename the file pixakit-key.json.example to pixakit-key.json and update with you
 - Limit the file types to be uploaded. 
 - Add support to download files with the params. 
 - Listing the files in caches with option to deleted or add a TIME_TO_LIVE.
+- Create the docker file and build setup 
